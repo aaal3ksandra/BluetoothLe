@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">BluetoothLe</string>
+    <string name="ble_not_supported" />
+    <string name="error_bluetooth_not_supported" />
+</resources>

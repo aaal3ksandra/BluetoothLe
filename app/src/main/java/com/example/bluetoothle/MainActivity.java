@@ -23,9 +23,9 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.nfc.Tag;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.ParcelUuid;
 import android.util.Log;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -33,6 +33,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
+
 
 import static android.bluetooth.BluetoothGatt.GATT_SUCCESS;
 
@@ -53,7 +54,6 @@ public class MainActivity extends AppCompatActivity {
     // Stops scanning after 10 seconds.
     private static final long SCAN_PERIOD = 10000;
     Context context;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -162,7 +162,8 @@ public class MainActivity extends AppCompatActivity {
                     curTemp = charateristic.getValue();
                 for (byte b : curTemp) {
                     System.out.println("TEMP Value: " + b);
-
+                    TextView temp = findViewById(R.id.temp_reading);
+                    temp.setText(b);
                 }
 
                 chars.remove(chars.get(chars.size() - 1));

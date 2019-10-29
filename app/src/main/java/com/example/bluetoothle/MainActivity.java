@@ -46,9 +46,9 @@ public class MainActivity extends AppCompatActivity {
     BluetoothDevice mBluetoothDevice;
     UUID CLIMATE_UUID = UUID.fromString("19B10010-E8F2-537E-4F6C-D104768A1214");
     UUID TEMP_CHAR_UUID = UUID.fromString("19B10012-E8F2-537E-4F6C-D104768A1214");
-    UUID[] serviceUUID = new UUID[]{CLIMATE_UUID};
+    UUID[] serviceUUIDS = new UUID[]{CLIMATE_UUID};
     byte[] curTemp;
-    List<ScanFilter> scanFilter = null;
+
     public static String EXTRA_DEVICE_ADDRESS = "device_address";
     private static final int REQUEST_ENABLE_BT = 1;
     // Stops scanning after 10 seconds.
@@ -60,20 +60,22 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Use this check to determine whether BLE is supported on the device.  Then you can
-        // selectively disable BLE-related features.
-        if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
-            Toast.makeText(this, R.string.ble_not_supported, Toast.LENGTH_SHORT).show();
-            finish();
-        }
+        if (mBluetoothAdapter == null || (!mBluetoothAdapter.isEnabled())) {
+            Intent enabledBluetoothIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivityForResult(enabledBluetoothIntent, 1);
+        } else startScan();
+    }
+
+    public void startScan() {
+        List<ScanFilter> scanFilter = null;
         ScanSettings scanSettings = new ScanSettings.Builder()
                 .setScanMode(ScanSettings.SCAN_MODE_LOW_POWER)
                 .setCallbackType(ScanSettings.CALLBACK_TYPE_ALL_MATCHES)
                 .build();
 
-        if (serviceUUID != null) {
+        if (serviceUUIDS != null) {
             scanFilter = new ArrayList<>();
-            for (UUID serviceUUID : serviceUUID) {
+            for (UUID serviceUUID : serviceUUIDS) {
                 ScanFilter scanFilters = new ScanFilter.Builder()
                         .setServiceUuid(new ParcelUuid(serviceUUID))
                         .build();
@@ -81,10 +83,6 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         // Checks if Bluetooth is supported on the device.
-        if (mBluetoothAdapter == null || (!mBluetoothAdapter.isEnabled())) {
-            Intent enabledBluetoothIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivityForResult(enabledBluetoothIntent, 1);
-        }
 
         if (mBluetoothLeScanner != null) {
             mBluetoothLeScanner.startScan(scanFilter, scanSettings, mScanCallback);
@@ -96,6 +94,7 @@ public class MainActivity extends AppCompatActivity {
             Log.d(TAG, "stopped scanning");
         }
     }
+
 
 
     ScanCallback mScanCallback = new ScanCallback() {
